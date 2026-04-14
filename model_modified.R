@@ -74,7 +74,7 @@ computeAC_performance <- function(risk, Schema_res, Item_EI, Outputs_cho, ThisPh
 }
 
 #############################################################
-## Model Main Function
+## first change
 simulation <- function(Param.df, type, exp_type, save=F, savepath="",
                        sim.mode=c("before", "after", "whole")[3], 
                        before.path=NA,
@@ -165,6 +165,7 @@ simulation <- function(Param.df, type, exp_type, save=F, savepath="",
     
     ##### create the experiment for further simulation ######
 #############################################################    
+##second change
     schemainfo <- expschema %>% filter(new == 0) %>% select(-c(author, new))
     colnames(schemainfo)[c(3,5,6)] = c("conN","expN","expVar")
     
@@ -282,6 +283,7 @@ simulation <- function(Param.df, type, exp_type, save=F, savepath="",
         ### introduce new schema here
         if (type %in% c("L","H")){
           #############################################################
+          ##third change
           schemainfo2 <- expschema %>% filter(type == "new") %>% select(-c(author, new))
           colnames(schemainfo2)[c(3,5,6)] = c("conN","expN","expVar")
           schemainfo2 <- arrange(schemainfo2, desc(payoff))
