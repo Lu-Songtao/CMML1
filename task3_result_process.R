@@ -35,10 +35,15 @@ overall_summary <- overall_subject_summary %>%
   group_by(condition) %>%
   summarise(
     mean_AC = mean(AC, na.rm = TRUE),
+    se_AC = sd(AC, na.rm = TRUE) / sqrt(n()),
     mean_Schema_RT = mean(Schema_RT, na.rm = TRUE),
+    se_Schema_RT = sd(Schema_RT, na.rm = TRUE) / sqrt(n()),
     mean_RT1 = mean(RT_1, na.rm = TRUE),
+    se_RT1 = sd(RT_1, na.rm = TRUE) / sqrt(n()),
     mean_performance = mean(performance, na.rm = TRUE),
+    se_performance = sd(performance, na.rm = TRUE) / sqrt(n()),
     mean_schema_payoff = mean(schema_payoff, na.rm = TRUE),
+    se_schema_payoff = sd(schema_payoff, na.rm = TRUE) / sqrt(n()),
     .groups = "drop"
   )
 
@@ -60,10 +65,15 @@ early_summary <- early_subject_summary %>%
   group_by(condition) %>%
   summarise(
     mean_AC = mean(AC, na.rm = TRUE),
+    se_AC = sd(AC, na.rm = TRUE) / sqrt(n()),
     mean_Schema_RT = mean(Schema_RT, na.rm = TRUE),
+    se_Schema_RT = sd(Schema_RT, na.rm = TRUE) / sqrt(n()),
     mean_RT1 = mean(RT_1, na.rm = TRUE),
+    se_RT1 = sd(RT_1, na.rm = TRUE) / sqrt(n()),
     mean_performance = mean(performance, na.rm = TRUE),
+    se_performance = sd(performance, na.rm = TRUE) / sqrt(n()),
     mean_schema_payoff = mean(schema_payoff, na.rm = TRUE),
+    se_schema_payoff = sd(schema_payoff, na.rm = TRUE) / sqrt(n()),
     .groups = "drop"
   )
 
@@ -85,10 +95,15 @@ postbreak_summary <- postbreak_subject_summary %>%
   group_by(condition) %>%
   summarise(
     mean_AC = mean(AC, na.rm = TRUE),
+    se_AC = sd(AC, na.rm = TRUE) / sqrt(n()),
     mean_Schema_RT = mean(Schema_RT, na.rm = TRUE),
+    se_Schema_RT = sd(Schema_RT, na.rm = TRUE) / sqrt(n()),
     mean_RT1 = mean(RT_1, na.rm = TRUE),
+    se_RT1 = sd(RT_1, na.rm = TRUE) / sqrt(n()),
     mean_performance = mean(performance, na.rm = TRUE),
+    se_performance = sd(performance, na.rm = TRUE) / sqrt(n()),
     mean_schema_payoff = mean(schema_payoff, na.rm = TRUE),
+    se_schema_payoff = sd(schema_payoff, na.rm = TRUE) / sqrt(n()),
     .groups = "drop"
   )
 
@@ -103,22 +118,30 @@ ac_distribution <- all_df %>%
 print(ac_distribution)
 
 early_plot_df <- early_summary %>%
+  select(
+    condition,
+    mean_AC, se_AC,
+    mean_Schema_RT, se_Schema_RT,
+    mean_performance, se_performance,
+    mean_schema_payoff, se_schema_payoff
+  ) %>%
   pivot_longer(
-    cols = c(mean_AC, mean_Schema_RT, mean_performance, mean_schema_payoff),
-    names_to = "metric",
-    values_to = "value"
+    cols = -condition,
+    names_to = c(".value", "metric"),
+    names_pattern = "(mean|se)_(.*)"
   )
 
 early_plot_df$metric <- recode(
   early_plot_df$metric,
-  mean_AC = "Accuracy (AC)",
-  mean_Schema_RT = "Schema RT",
-  mean_performance = "Performance",
-  mean_schema_payoff = "Schema Payoff"
+  AC = "Accuracy (AC)",
+  Schema_RT = "Schema RT",
+  performance = "Performance",
+  schema_payoff = "Schema Payoff"
 )
 
-p_early <- ggplot(early_plot_df, aes(x = condition, y = value, fill = condition)) +
+p_early <- ggplot(early_plot_df, aes(x = condition, y = mean, fill = condition)) +
   geom_col() +
+  geom_errorbar(aes(ymin = mean - se, ymax = mean + se), width = 0.2) +
   facet_wrap(~metric, scales = "free_y") +
   labs(
     title = "Early rounds comparison across initialization conditions",
@@ -134,22 +157,30 @@ p_early <- ggplot(early_plot_df, aes(x = condition, y = value, fill = condition)
 print(p_early)
 
 postbreak_plot_df <- postbreak_summary %>%
+  select(
+    condition,
+    mean_AC, se_AC,
+    mean_Schema_RT, se_Schema_RT,
+    mean_performance, se_performance,
+    mean_schema_payoff, se_schema_payoff
+  ) %>%
   pivot_longer(
-    cols = c(mean_AC, mean_Schema_RT, mean_performance, mean_schema_payoff),
-    names_to = "metric",
-    values_to = "value"
+    cols = -condition,
+    names_to = c(".value", "metric"),
+    names_pattern = "(mean|se)_(.*)"
   )
 
 postbreak_plot_df$metric <- recode(
   postbreak_plot_df$metric,
-  mean_AC = "Accuracy (AC)",
-  mean_Schema_RT = "Schema RT",
-  mean_performance = "Performance",
-  mean_schema_payoff = "Schema Payoff"
+  AC = "Accuracy (AC)",
+  Schema_RT = "Schema RT",
+  performance = "Performance",
+  schema_payoff = "Schema Payoff"
 )
 
-p_postbreak <- ggplot(postbreak_plot_df, aes(x = condition, y = value, fill = condition)) +
+p_postbreak <- ggplot(postbreak_plot_df, aes(x = condition, y = mean, fill = condition)) +
   geom_col() +
+  geom_errorbar(aes(ymin = mean - se, ymax = mean + se), width = 0.2) +
   facet_wrap(~metric, scales = "free_y") +
   labs(
     title = "Post-break early rounds comparison across initialization conditions",
